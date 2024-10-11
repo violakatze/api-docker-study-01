@@ -1,0 +1,39 @@
+services:
+  api-docker-study-01:
+    image: ${DOCKER_REGISTRY-}apidockerstudy01
+    container_name: api-docker-study-01
+    build:
+      context: .
+      dockerfile: api-docker-study-01/Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - net-net
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings_aaa=Server=net-db;Port=3306:User Id=root;Password=password;Database=db;SSL Mode=Required;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+  db:
+    container_name: net-db
+    platform: linux/x86_64
+    image: mysql:8.4
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db
+      MYSQL_USER: db
+      MYSQL_PASSWORD: password
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      # - ./mysql/init:/docker-entrypoint-initdb.d
+      # - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - net-net
+
+networks:
+  net-net:
+    driver: bridge
